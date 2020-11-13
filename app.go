@@ -4,15 +4,13 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
-
 	"encoding/json"
-	"net/http"
-	"strconv"
-
+	"fmt"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"log"
+	"net/http"
+	"strconv"
 )
 
 type App struct {
@@ -21,6 +19,7 @@ type App struct {
 }
 
 func (a *App) Initialize(user, password, dbname string) {
+
 	connectionString :=
 		fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
 
@@ -47,7 +46,7 @@ func (a *App) getProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p := product{ID: id}
+	p := Product{ID: id}
 	if err := p.getProduct(a.DB); err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -143,7 +142,7 @@ func (a *App) deleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p := product{ID: id}
+	p := Product{ID: id}
 	if err := p.deleteProduct(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
