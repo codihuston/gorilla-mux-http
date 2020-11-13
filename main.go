@@ -1,24 +1,15 @@
 package main
 
-import (
-	"fmt"
-	"github.com/codihuston/gorilla-mux-http/api/v1/products"
-	// "os"
-)
+import "os"
 
 func main() {
-	// a := App{}
+	a := App{}
 
-	p := products.Product{ID: 1}
-	// p := api.v1.Product{ID: 1}
+	a.Initialize(
+		os.Getenv("APP_DB_USERNAME"),
+		os.Getenv("APP_DB_PASSWORD"),
+		os.Getenv("APP_DB_NAME"),
+	)
 
-	// a.Initialize(
-	// 	os.Getenv("APP_DB_USERNAME"),
-	// 	os.Getenv("APP_DB_PASSWORD"),
-	// 	os.Getenv("APP_DB_NAME"),
-	// )
-
-	// a.Run(":8010")
-
-	fmt.Println(p)
+	a.Run(":8010")
 }
