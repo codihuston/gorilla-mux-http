@@ -40,7 +40,7 @@ func (a *App) getProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p := models.Product{ID: id}
-	if err := p.GetProduct(db.Connection); err != nil {
+	if err := p.GetProduct(); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			respondWithError(w, http.StatusNotFound, "Product not found")
@@ -76,7 +76,7 @@ func (a *App) getProducts(w http.ResponseWriter, r *http.Request) {
 		start = 0
 	}
 
-	products, err := models.GetProducts(db.Connection, start, count)
+	products, err := models.GetProducts(start, count)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -94,7 +94,7 @@ func (a *App) createProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := p.CreateProduct(db.Connection); err != nil {
+	if err := p.CreateProduct(); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -119,7 +119,7 @@ func (a *App) updateProduct(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	p.ID = id
 
-	if err := p.UpdateProduct(db.Connection); err != nil {
+	if err := p.UpdateProduct(); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -136,7 +136,7 @@ func (a *App) deleteProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p := models.Product{ID: id}
-	if err := p.DeleteProduct(db.Connection); err != nil {
+	if err := p.DeleteProduct(); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

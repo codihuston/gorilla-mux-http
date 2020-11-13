@@ -2,7 +2,7 @@
 package models
 
 import (
-	"database/sql"
+	"github.com/codihuston/gorilla-mux-http/db"
 )
 
 type Product struct {
@@ -11,27 +11,27 @@ type Product struct {
 	Price float64 `json:"price"`
 }
 
-func (p *Product) GetProduct(db *sql.DB) error {
-	return db.QueryRow("SELECT name, price FROM products WHERE id=$1",
+func (p *Product) GetProduct() error {
+	return db.Connection.QueryRow("SELECT name, price FROM products WHERE id=$1",
 		p.ID).Scan(&p.Name, &p.Price)
 }
 
-func (p *Product) UpdateProduct(db *sql.DB) error {
+func (p *Product) UpdateProduct() error {
 	_, err :=
-		db.Exec("UPDATE products SET name=$1, price=$2 WHERE id=$3",
+		db.Connection.Exec("UPDATE products SET name=$1, price=$2 WHERE id=$3",
 			p.Name, p.Price, p.ID)
 
 	return err
 }
 
-func (p *Product) DeleteProduct(db *sql.DB) error {
-	_, err := db.Exec("DELETE FROM products WHERE id=$1", p.ID)
+func (p *Product) DeleteProduct() error {
+	_, err := db.Connection.Exec("DELETE FROM products WHERE id=$1", p.ID)
 
 	return err
 }
 
-func (p *Product) CreateProduct(db *sql.DB) error {
-	err := db.QueryRow(
+func (p *Product) CreateProduct() error {
+	err := db.Connection.QueryRow(
 		"INSERT INTO products(name, price) VALUES($1, $2) RETURNING id",
 		p.Name, p.Price).Scan(&p.ID)
 
@@ -42,8 +42,8 @@ func (p *Product) CreateProduct(db *sql.DB) error {
 	return nil
 }
 
-func GetProducts(db *sql.DB, start, count int) ([]Product, error) {
-	rows, err := db.Query(
+func GetProducts(start, count int) ([]Product, error) {
+	rows, err := db.Connection.Query(
 		"SELECT id, name,  price FROM products LIMIT $1 OFFSET $2",
 		count, start)
 

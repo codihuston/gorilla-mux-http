@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/codihuston/gorilla-mux-http/db"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -144,7 +145,7 @@ func addProducts(count int) {
 	}
 
 	for i := 0; i < count; i++ {
-		a.DB.Exec("INSERT INTO products(name, price) VALUES($1, $2)", "Product "+strconv.Itoa(i), (i+1.0)*10)
+		db.Connection.Exec("INSERT INTO products(name, price) VALUES($1, $2)", "Product "+strconv.Itoa(i), (i+1.0)*10)
 	}
 }
 
@@ -155,14 +156,14 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 }
 
 func ensureTableExists() {
-	if _, err := a.DB.Exec(tableCreationQuery); err != nil {
+	if _, err := db.Connection.Exec(tableCreationQuery); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func clearTable() {
-	a.DB.Exec("DELETE FROM products")
-	a.DB.Exec("ALTER SEQUENCE products_id_seq RESTART WITH 1")
+	db.Connection.Exec("DELETE FROM products")
+	db.Connection.Exec("ALTER SEQUENCE products_id_seq RESTART WITH 1")
 }
 
 const tableCreationQuery = `CREATE TABLE IF NOT EXISTS products
