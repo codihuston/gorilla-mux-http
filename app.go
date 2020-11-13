@@ -5,8 +5,8 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"github.com/codihuston/gorilla-mux-http/api/v1/models"
+	"github.com/codihuston/gorilla-mux-http/db"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"log"
@@ -16,19 +16,11 @@ import (
 
 type App struct {
 	Router *mux.Router
-	DB     *sql.DB
 }
 
 func (a *App) Initialize(user, password, dbname string) {
 
-	connectionString :=
-		fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
-
-	var err error
-	a.DB, err = sql.Open("postgres", connectionString)
-	if err != nil {
-		log.Fatal(err)
-	}
+	db.Initialize(user, password, dbname)
 
 	a.Router = mux.NewRouter()
 
@@ -48,7 +40,7 @@ func (a *App) getProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p := models.Product{ID: id}
-	if err := p.GetProduct(a.DB); err != nil {
+	if err := p.GetProduct(db.Connection); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			respondWithError(w, http.StatusNotFound, "Product not found")
@@ -84,7 +76,7 @@ func (a *App) getProducts(w http.ResponseWriter, r *http.Request) {
 		start = 0
 	}
 
-	products, err := models.GetProducts(a.DB, start, count)
+	products, err := models.GetProducts(db.Connection, start, count)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -102,7 +94,7 @@ func (a *App) createProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := p.CreateProduct(a.DB); err != nil {
+	if err := p.CreateProduct(db.Connection); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -127,7 +119,7 @@ func (a *App) updateProduct(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	p.ID = id
 
-	if err := p.UpdateProduct(a.DB); err != nil {
+	if err := p.UpdateProduct(db.Connection); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -144,7 +136,7 @@ func (a *App) deleteProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p := models.Product{ID: id}
-	if err := p.DeleteProduct(a.DB); err != nil {
+	if err := p.DeleteProduct(db.Connection); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
